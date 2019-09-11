@@ -1,5 +1,7 @@
 # Bobine
 
+> ⚠️Work in progress
+
 Discussion thread.
 
 ## Requirements
@@ -23,7 +25,6 @@ cp .env.example .env
 ```
 
 ```
-cd docker
 docker-compose up -d
 ```
 
