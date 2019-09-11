@@ -1,0 +1,74 @@
+version: '3'
+
+networks:
+  bobine:
+    driver: "bridge"
+
+services:
+
+  mysql:
+    build:
+      context: ./docker/containers/mysql
+    environment:
+      - MYSQL_DATABASE=${DOCKER_MYSQL_DATABASE}
+      - MYSQL_USER=${DOCKER_MYSQL_USER}
+      - MYSQL_PASSWORD=${DOCKER_MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DOCKER_MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./docker/data/mysql:/var/lib/mysql
+      - ./docker/logs/mysql:/var/log/mysql
+    ports:
+      - ${DOCKER_MYSQL_PORT}:3306
+    networks:
+      - bobine
+
+  redis:
+    build:
+      context: ./docker/containers/redis
+    volumes:
+      - ./docker/data/redis:/var/lib/redis
+      - ./docker/logs/redis:/var/log/redis
+    ports:
+      - ${DOCKER_REDIS_PORT}:6379
+    networks:
+      - bobine
+
+  php:
+    build:
+      context: ./docker/containers/php
+      args:
+        - PHP_VERSION=${DOCKER_PHP_VERSION}
+    expose:
+      - 9000
+    volumes:
+      - .:/var/www/bobine
+      - ./docker/logs/php-fpm:/var/log/php-fpm
+    networks:
+      - bobine
+
+  nginx:
+    build:
+      context: ./docker/containers/nginx
+    volumes:
+      - .:/var/www/bobine
+      - ./docker/logs/nginx:/var/log/nginx
+    ports:
+      - ${DOCKER_NGINX_HTTP_PORT}:80
+      - ${DOCKER_NGINX_HTTPS_PORT}:443
+    depends_on:
+      - php
+    networks:
+      - bobine
+
+#  workspace:
+#    build:
+#      context: ./docker/containers/workspace
+#      args:
+#        - PHP_VERSION=${DOCKER_PHP_VERSION}
+#    volumes:
+#      - .:/code/bobine
+#    networks:
+#      - bobine
+#    depends_on:
+#      - mysql
+#      - redis
