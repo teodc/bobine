@@ -1,11 +1,6 @@
-version: '3'
-
-networks:
-  bobine:
-    driver: "bridge"
+version: "3"
 
 services:
-
   mysql:
     build:
       context: ./docker/containers/mysql
@@ -19,9 +14,6 @@ services:
       - ./docker/logs/mysql:/var/log/mysql
     ports:
       - ${DOCKER_MYSQL_PORT}:3306
-    networks:
-      - bobine
-
   redis:
     build:
       context: ./docker/containers/redis
@@ -30,9 +22,6 @@ services:
       - ./docker/logs/redis:/var/log/redis
     ports:
       - ${DOCKER_REDIS_PORT}:6379
-    networks:
-      - bobine
-
   php:
     build:
       context: ./docker/containers/php
@@ -41,11 +30,8 @@ services:
     expose:
       - 9000
     volumes:
-      - .:/var/www/bobine
+      - .:/code/bobine
       - ./docker/logs/php-fpm:/var/log/php-fpm
-    networks:
-      - bobine
-
   nginx:
     build:
       context: ./docker/containers/nginx
@@ -57,18 +43,3 @@ services:
       - ${DOCKER_NGINX_HTTPS_PORT}:443
     depends_on:
       - php
-    networks:
-      - bobine
-
-#  workspace:
-#    build:
-#      context: ./docker/containers/workspace
-#      args:
-#        - PHP_VERSION=${DOCKER_PHP_VERSION}
-#    volumes:
-#      - .:/code/bobine
-#    networks:
-#      - bobine
-#    depends_on:
-#      - mysql
-#      - redis
